@@ -210,11 +210,6 @@ def scrape_house(url):
         final_dictionary['building_state'] = script['property']['building']['condition']
     except:
         final_dictionary['building_state'] = 'UNKNOWN'
-    # Energy
-    try:
-        final_dictionary['energy'] = script['property']['energy']['certificates']
-    except:
-        final_dictionary['energy'] = 'UNKNOWN'
 
 
     return final_dictionary
@@ -255,11 +250,9 @@ counters = 1
 # Build path to file
 # Selects current working directory
 cwd = Path.cwd()
-csv_path = r'.\immo-eliza-scraping-Team-MAS-FN\data_output'
-#excel_path = r'.\immo-eliza-scraping-Team-MAS-FN\data_output1'
+csv_path = r'.\data_output'
 url_path = r'full_list.txt'
 csv_path = (cwd / csv_path).resolve()
-#excel_path = (cwd / excel_path).resolve()
 url_path = (cwd / url_path).resolve()
 
 dataset = create_dataframe()
