@@ -28,7 +28,7 @@ def scrape_urls(page_num):
 
 def thread_scraping():
     full_list_url = []
-    num_pages = 30
+    num_pages = 333
 
     # Create a list to store threads
     threads = []
@@ -58,6 +58,7 @@ def thread_scraping():
     return full_list_url
 
 thread_scraping()
+
 
 # Function to report the progress of the scrapping process 
 def reporting(str, i): 
