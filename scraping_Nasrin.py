@@ -20,7 +20,7 @@ def scrape_urls(page_num):
         urls.append(elem.get('href'))
         
     # Save URLs to file - full_list.txt (local storage)
-    with open("full_list.txt", "a") as f:
+    with open("full_list.txt", "w") as f:
         for url in urls:
             f.write(url + '\n')
     return urls
@@ -58,6 +58,20 @@ def thread_scraping():
     return full_list_url
 
 thread_scraping()
+
+# Reading URLs from the file
+with open("./full_list.txt", "r") as file:
+    original_urls = file.readlines()
+
+# Removing duplicates
+unique_urls = list(set(original_urls))
+
+# Check if duplicates exist
+if len(original_urls) != len(unique_urls):
+    print("Duplicates found!")
+else:
+    print("No duplicates found.")
+
 
 # Function to report the progress of the scrapping process 
 def reporting(str, i): 
@@ -251,7 +265,7 @@ counters = 1
 # Selects current working directory
 cwd = Path.cwd()
 csv_path = r'.\data_output'
-url_path = r'full_list.txt'
+url_path = r'.\full_list.txt'
 csv_path = (cwd / csv_path).resolve()
 url_path = (cwd / url_path).resolve()
 
@@ -260,3 +274,6 @@ print(dataset)
 
 column_names = dataset.columns
 print(column_names)
+
+
+
