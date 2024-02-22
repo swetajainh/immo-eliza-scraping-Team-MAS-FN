@@ -25,7 +25,7 @@ def main():
     cwd = Path.cwd()
 
     # Define file paths
-    csv_path = cwd / 'data_output' 
+    csv_path = cwd / 'house_apart_sale' 
     url_path = cwd / 'full_list.txt'
 
     # Create DataFrame from scraped data
