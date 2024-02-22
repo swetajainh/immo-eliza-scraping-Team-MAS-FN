@@ -20,7 +20,7 @@ def scrape_urls(page_num):
         urls.append(elem.get('href'))
         
     # Save URLs to file - full_list.txt (local storage)
-    with open("full_list.txt", "w") as f:
+    with open("full_list.txt", "a") as f:
         for url in urls:
             f.write(url + '\n')
     return urls
@@ -28,7 +28,7 @@ def scrape_urls(page_num):
 
 def thread_scraping():
     full_list_url = []
-    num_pages = 1
+    num_pages = 30
 
     # Create a list to store threads
     threads = []
@@ -59,6 +59,13 @@ def thread_scraping():
 
 thread_scraping()
 
+# Function to report the progress of the scrapping process 
+def reporting(str, i): 
+    """Reports on scraping progress"""
+    sys.stdout.write(str + ' %d\r' %i)
+    sys.stdout.flush()
+    return
+
 # Reading URLs from the file
 with open("./full_list.txt", "r") as file:
     original_urls = file.readlines()
@@ -71,14 +78,6 @@ if len(original_urls) != len(unique_urls):
     print("Duplicates found!")
 else:
     print("No duplicates found.")
-
-
-# Function to report the progress of the scrapping process 
-def reporting(str, i): 
-    """Reports on scraping progress"""
-    sys.stdout.write(str + ' %d\r' %i)
-    sys.stdout.flush()
-    return
 
 def counter():
     """Creates a global counter for use in list comprehension"""
@@ -248,8 +247,6 @@ def create_dataframe():
     
     # Export our dataset to a csv"
     df.to_csv(csv_path, index = True)
-    #df.to_excel(excel_path, index=True)
-
 
     end_time = time.time()  # Stop timer
     execution_time = end_time - start_time
@@ -264,16 +261,49 @@ counters = 1
 # Build path to file
 # Selects current working directory
 cwd = Path.cwd()
-csv_path = r'.\data_output'
-url_path = r'.\full_list.txt'
+output_folder = (cwd / 'data_output').resolve() # Adjusted CSV file path and name
+csv_filename = "house_apart_sale.csv"
+csv_path = (output_folder / csv_filename).resolve()
+url_path = './full_list.txt'
 csv_path = (cwd / csv_path).resolve()
 url_path = (cwd / url_path).resolve()
 
+# Ensure the "output" folder exists
+output_folder = (cwd / 'data_output').resolve()
+output_folder.mkdir(parents=True, exist_ok=True)
+
 dataset = create_dataframe()
+print("Original DataFrame:")
 print(dataset)
 
-column_names = dataset.columns
-print(column_names)
+# Print unique values in the 'furnished' column before recoding
+print("Unique values in 'region' column before recoding:")
+print(dataset['region'].unique())
 
+# Print 'furnished' column before recoding
+# print("\n'furnished' column before recoding:")
+# print(dataset['furnished'].head())
 
+# Assuming df is your DataFrame
+binary_columns = ['furnished', 'terrace', 'garden', 'swimming_pool']
 
+# Convert 'TRUE'/'FALSE' strings to 1/0 integers and handle empty values
+for column in binary_columns:
+    dataset[column] = dataset[column].apply(lambda x: 1 if str(x).upper() == 'TRUE' else (0 if str(x).upper() == 'FALSE' else None) if x != '' else None)
+
+# Assuming df is your DataFrame
+tria_columns = ['region']
+
+# Define the mapping for 'region'
+region_mapping = {'Brussels': 1, 'Wallonie': 2, 'Flanders': 3, '': None}
+
+# Convert strings to integers and handle empty cells
+for column in tria_columns:
+    dataset[column] = dataset[column].map(region_mapping)
+    
+# Save the entire DataFrame to a CSV file
+csv_output_path = output_folder / 'house_apart_sale.csv'
+dataset.to_csv(csv_output_path, index=False)
+
+print("\nDataFrame with 'furnished' column recoded:")
+print(dataset.head())
