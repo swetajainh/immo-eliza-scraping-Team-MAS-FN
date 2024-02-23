@@ -9,6 +9,12 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 import sys
 
+"""Scrapes URLs from Immoweb search results for a given page number.
+    Args:
+        page_num (int): The page number to scrape.
+    Returns:
+        list: A list of URLs scraped from the page.
+"""
 # Function to scrape URLs
 def scrape_urls(page_num):
     base_url = f"https://www.immoweb.be/en/search/house-and-apartment/for-sale?countries=BE&page={page_num}&orderBy=relevance"
@@ -27,8 +33,9 @@ def scrape_urls(page_num):
 
 
 def thread_scraping():
+    """Performs multithreaded scraping of URLs from Immoweb."""
     full_list_url = []
-    num_pages = 30
+    num_pages = 333
 
     # Create a list to store threads
     threads = []
@@ -36,11 +43,8 @@ def thread_scraping():
     
     # Create and start threads
     for i in range(1, num_pages + 1):
-        #This line creates a new thread (t) with a target function. 
-        #The target function is a lambda function that calls scrape_urls(i) for the current value of i.
+        #Creates a new thread (t) with a target function. 
         t = threading.Thread(target=lambda: full_list_url.extend(scrape_urls(i)))
-        #The newly created thread t is appended to the list threads, 
-        # which keeps track of all the threads created.
         threads.append(t)
         #This starts the thread t, which executes the target function asynchronously. 
         t.start()
@@ -49,7 +53,8 @@ def thread_scraping():
     for t in threads:
         t.join()
 
-    end_time = time.time()  # Stop timer
+    # Stop timer
+    end_time = time.time()  
     execution_time = end_time - start_time
 
     print("Scraping completed!")
@@ -58,6 +63,7 @@ def thread_scraping():
     return full_list_url
 
 thread_scraping()
+
 
 # Function to report the progress of the scrapping process 
 def reporting(str, i): 
@@ -79,6 +85,7 @@ if len(original_urls) != len(unique_urls):
 else:
     print("No duplicates found.")
 
+
 def counter():
     """Creates a global counter for use in list comprehension"""
     global counters 
@@ -88,9 +95,14 @@ def counter():
         counters +=1
     return
 
-def scrape_house(url):
-    """Scrapes all the info from a house listing"""
 
+"""Scrapes information from a house listing URL.
+    Args:
+        url (str): The URL of the house listing.
+    Returns:
+        dict: A dictionary containing information about the house.
+"""
+def scrape_house(url):
     # Get the house listing and make a soup
     try:
         house_page = requests.get(url)
@@ -229,7 +241,7 @@ def scrape_house(url):
    
 
 def create_dataframe():
-    """Will scrape info from house pages and create a pandas DataFrame from the info we scrape"""
+    """Scrapes house information and creates a pandas DataFrame."""
     # Initialize list and fetch all URLs
     houses_links = []
     houses_links = thread_scraping()
@@ -280,18 +292,14 @@ print(dataset)
 print("Unique values in 'region' column before recoding:")
 print(dataset['region'].unique())
 
-# Print 'furnished' column before recoding
-# print("\n'furnished' column before recoding:")
-# print(dataset['furnished'].head())
-
-# Assuming df is your DataFrame
+# Putting binary columns in a list
 binary_columns = ['furnished', 'terrace', 'garden', 'swimming_pool']
 
 # Convert 'TRUE'/'FALSE' strings to 1/0 integers and handle empty values
 for column in binary_columns:
     dataset[column] = dataset[column].apply(lambda x: 1 if str(x).upper() == 'TRUE' else (0 if str(x).upper() == 'FALSE' else None) if x != '' else None)
 
-# Assuming df is your DataFrame
+# df is our DataFrame
 tria_columns = ['region']
 
 # Define the mapping for 'region'
